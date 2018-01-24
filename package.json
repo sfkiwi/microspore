@@ -1,0 +1,30 @@
+{
+  "name": "microspore",
+  "version": "1.0.0",
+  "description": "Scalable micro-service architecture mimicing simplified data flow for Amazon product search and product order placement",
+  "main": "web-server/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node web-server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microspore/microspore.git"
+  },
+  "keywords": [
+    "Amazon",
+    "microservice",
+    "node",
+    "koa",
+    "cassandra",
+    "elasticsearch",
+    "aws",
+    "t2.micro"
+  ],
+  "author": "Group 6",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/microspore/microspore/issues"
+  },
+  "homepage": "https://github.com/microspore/microspore#readme"
+}

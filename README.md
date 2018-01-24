@@ -1,10 +1,11 @@
-# Project Name
+# Amazon micro-service architecture
 
-The project description
+Scalable micro-service architecture representing simplified 
+product search and order data flows.
 
 ## Roadmap
 
-View the project roadmap [here](LINK_TO_DOC)
+View the project roadmap [here](https://trello.com/b/YEVVUNMx/roadmap)
 
 ## Contributing
 
