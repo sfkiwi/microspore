@@ -26,5 +26,10 @@
   "bugs": {
     "url": "https://github.com/microspore/microspore/issues"
   },
-  "homepage": "https://github.com/microspore/microspore#readme"
+  "homepage": "https://github.com/microspore/microspore#readme",
+  "dependencies": {
+    "koa": "^2.4.1"
+  },
+  "devDependencies": {
+  }
 }
