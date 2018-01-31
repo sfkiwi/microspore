@@ -1,8 +1,9 @@
-const Koa = require('koa');
+import Koa from 'koa';
+import db from './lib/cassandra';
+
 const app = new Koa();
 
-//app.context.db = db();
-
+app.context.db = db;
 
 app.use(async ctx => {
   ctx.response.status = 200;

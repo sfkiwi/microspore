@@ -28,8 +28,20 @@
   },
   "homepage": "https://github.com/microspore/microspore#readme",
   "dependencies": {
+    "cassandra-driver": "^3.3.0",
+    "express-cassandra": "^2.1.1",
     "koa": "^2.4.1"
   },
   "devDependencies": {
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-register": "^6.26.0",
+    "faker": "^4.1.0",
+    "random-datetime": "^1.0.1",
+    "random-day": "^1.0.1",
+    "random-hour": "^1.0.3",
+    "random-minute": "^1.0.4",
+    "random-month": "^1.0.1",
+    "random-year": "^1.0.2"
   }
 }
