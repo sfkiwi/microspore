@@ -1,6 +1,7 @@
 import Koa from 'koa';
 import db from './lib/cassandra';
 
+
 const app = new Koa();
 
 app.context.db = db;

@@ -41,3 +41,6 @@ bower_components/
 
 # Editor directorys
 .vscode/
+
+#Amazon keys
+*.pem

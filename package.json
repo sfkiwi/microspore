@@ -28,6 +28,8 @@
   },
   "homepage": "https://github.com/microspore/microspore#readme",
   "dependencies": {
+    "aws-sdk": "^2.188.0",
+    "bluebird": "^3.5.1",
     "cassandra-driver": "^3.3.0",
     "express-cassandra": "^2.1.1",
     "koa": "^2.4.1"
