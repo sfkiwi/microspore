@@ -5,19 +5,28 @@ const randomYear = require('random-year');
 const randomMonth = require('random-month');
 const randomDay = require('random-day');
 
-const NUM_USERS = 1000000;
-const NUM_ORDERS = 1000000;
+const Progress = require('progress-barzz');
+Progress.init(100);
 
+const NUM_USERS = 1000000;
+var NUM_ORDERS = 100000;
+if (process.argv.length > 3) {
+  NUM_ORDERS = process.argv[3];
+}
 
 const users = [];
 for (let i = 0; i < NUM_USERS; i++) {
-  users[i] = Math.floor(Math.random() * 1000000000000).toString();
+  users[i] = faker.random.uuid();
 }
 
+let suffix = '';
+if (process.argv.length > 2) {
+  suffix = process.argv[2];
+}
 
-const orders = fs.createWriteStream('./fixtures/ordersneworder.json');
-const prime1 = fs.createWriteStream('./fixtures/primetrialsignup.json');
-const prime2 = fs.createWriteStream('./fixtures/primetrialoptout.json');
+const orders = fs.createWriteStream(`./fixtures/ordersneworder${suffix}.json`);
+const prime1 = fs.createWriteStream(`./fixtures/primetrialsignup${suffix}.json`);
+const prime2 = fs.createWriteStream(`./fixtures/primetrialoptout${suffix}.json`);
 
 
 orders.write('[');
@@ -25,28 +34,76 @@ prime1.write('[');
 prime2.write('[');
 
 
+
 let i = NUM_ORDERS;
+let ordersCount = 0;
+let prime1Count = 0;
+let prime2Count = 0;
+
+let orders_Ok = true;
+let prime1_Ok = true;
+let prime2_Ok = true;
+
+orders.on('finish', () => {
+  console.error(`${ordersCount} lines written to ordersneworder${suffix}`);
+});
+
+prime1.on('finish', () => {
+  console.error(`${prime1Count} lines written to primetrialsignup${suffix}`);
+});
+
+prime2.on('finish', () => {
+  console.error(`${prime2Count} lines written to primetrialoptout${suffix}`);
+});
+
+// had to stop early!
+// write some more once it drains
+prime1.on('drain', () => {
+  if (i > 0) {
+    prime1_Ok = true;
+    writeLine();
+  }
+});
+
+orders.on('drain', () => {
+  if (i > 0) {
+    orders_Ok = true;
+    writeLine();
+  }
+});
+
+prime2.on('drain', () => {
+  if (i > 0) {
+    prime2_Ok = true;
+    writeLine();
+  }
+});
 
 let writeLine = function() {
-  let orders_Ok = true;
-  let prime1_Ok = true;
-  let prime2_Ok = true;
   do {
     i--;
+
+    if (i % (NUM_ORDERS / 100) === 0) {
+      process.stdout.clearLine();
+      process.stdout.cursorTo(0); 
+      process.stdout.write(Progress.tick());
+      //console.log(Progress.tick());
+    }
+
     if (i === 0) {
       // last time!
-      let year = randomYear({ min: 2012, max: 2018 });
+      let year = randomYear({ min: 2017, max: 2018 });
       let month = randomMonth({ raw: true });
       let day = randomDay({ year: year, month: month });
       let orderId = Math.floor(Math.random() * NUM_ORDERS * 1000);
       let userId = users[Math.floor(Math.random() * NUM_USERS)];
-      
+      // let timestamp = randomDatetime({ year: year, month: month.number, day: day });
       //create order
-      orders.write(`{"id":"${faker.random.uuid()}","day":"${year}-${month.number}-${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}","amount":"${Math.floor(Math.random() * 150)}"}]`);
-      
+      orders.end(`{"year":"${year}","month":"${month.number}","day":"${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}","amount":"${Math.floor(Math.random() * 150)}"}]\n`);
+      ordersCount++;
       //create prime sign up for all users
-      prime1.write(`{"id":"${faker.random.uuid()}","day":"${year}-${month.number}-${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}"}]`);
-      
+      prime1.end(`{"year":"${year}","month":"${month.number}","day":"${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}"}]\n`);
+      prime1Count++;
       //create prime opt out for some users
       let newday = day + Math.floor(Math.random() * 29);
       
@@ -65,24 +122,29 @@ let writeLine = function() {
         year++;
       }
       
-      prime2.write(`{"id":"${faker.random.uuid()}","day":"${year}-${month.number}-${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","userId":"${userId}"}]`);
+      prime2.end(`{"year":"${year}","month":"${month.number}","day":"${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","userId":"${userId}"}]\n`);
+      prime2Count++;
+
+      console.log('');
       
-      
-    } else {
+    } else if (i > 0) {
       
       let year = randomYear({ min: 2012, max: 2018 });
       let month = randomMonth({ raw: true });
       let day = randomDay({ year: year, month: month });
       let orderId = Math.floor(Math.random() * NUM_ORDERS * 1000);
       let userId = users[Math.floor(Math.random() * NUM_USERS)];
+      
       // see if we should continue, or wait
       // don't pass the callback, because we're not done yet.
       //create order
-      orders_Ok = orders.write(`{"id":"${faker.random.uuid()}","day":"${year}-${month.number}-${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}","amount":"${Math.floor(Math.random() * 150)}"},\n`);
-      
+      orders_Ok = orders.write(`{"year":"${year}","month":"${month.number}","day":"${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}","amount":"${Math.floor(Math.random() * 150)}"},\n`);
+      ordersCount++;
+
       //create prime sign up for all users
-      prime1_Ok = prime1.write(`{"id":"${faker.random.uuid()}","day":"${year}-${month.number}-${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}"},\n`);
-      
+      prime1_Ok = prime1.write(`{"year":"${year}","month":"${month.number}","day":"${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}"},\n`);
+      prime1Count++;
+
       //create prime opt out for some users
       if (Math.random() < 0.60) {
         
@@ -103,32 +165,11 @@ let writeLine = function() {
           year++;
         }
         
-        prime2_Ok = prime2.write(`{"id":"${faker.random.uuid()}","day":"${year}-${month.number}-${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","userId":"${userId}"},\n`);
+        prime2_Ok = prime2.write(`{"year":"${year}","month":"${month.number}","day":"${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","userId":"${userId}"},\n`);
+        prime2Count++;
       }
     }
   } while (i > 0 && prime1_Ok && orders_Ok && prime2_Ok);
-  if (i > 0) {
-    // had to stop early!
-    // write some more once it drains
-    if (!prime1_Ok) {
-      prime1.once('drain', () => {
-        console.log('draining prime 1');
-        writeLine();
-      });
-    }
-    if (!orders_Ok) {
-      orders.once('drain', () => {
-        console.log('draining orders');
-        writeLine();
-      });
-    }
-    if (!prime2_Ok) {
-      prime2.once('drain', () => {
-        console.log('draining prime 2');
-        writeLine();
-      });
-    }
-  }
 };
 
 writeLine();

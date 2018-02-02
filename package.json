@@ -39,11 +39,13 @@
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
     "faker": "^4.1.0",
+    "progress-barzz": "^1.0.2",
     "random-datetime": "^1.0.1",
     "random-day": "^1.0.1",
     "random-hour": "^1.0.3",
     "random-minute": "^1.0.4",
     "random-month": "^1.0.1",
-    "random-year": "^1.0.2"
+    "random-year": "^1.0.2",
+    "terminal-kit": "^1.14.3"
   }
 }
