@@ -32,13 +32,15 @@
     "bluebird": "^3.5.1",
     "cassandra-driver": "^3.3.0",
     "express-cassandra": "^2.1.1",
-    "koa": "^2.4.1"
+    "koa": "^2.4.1",
+    "koa-router": "^7.4.0"
   },
   "devDependencies": {
     "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babel-register": "^6.26.0",
     "faker": "^4.1.0",
+    "newrelic": "^2.7.0",
     "progress-barzz": "^1.0.2",
     "random-datetime": "^1.0.1",
     "random-day": "^1.0.1",

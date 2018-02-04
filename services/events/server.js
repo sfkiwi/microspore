@@ -1,18 +1,40 @@
 import Koa from 'koa';
-import db from './lib/cassandra';
-
+import Router from 'koa-router';
+import db from './lib/db';
 
 const app = new Koa();
+const router = new Router({
+  prefix: '/api'
+});
 
 app.context.db = db;
 
-app.use(async ctx => {
-  ctx.response.status = 200;
-  ctx.response.body = { hello: 'world' };
-});
+router
 
-app.on('error', err => {
-  log.error('server error', err)
-});
+  .get('/orders', async ctx => {
+    try {
+      ctx.body = await ctx.db.getNewOrdersByDay(
+        parseInt(ctx.query.year), 
+        parseInt(ctx.query.month), 
+        parseInt(ctx.query.day));
+    } catch (err) {
+      console.log(err);
+      throw err;
+      return;
+    }
+  })
 
+  .get('/prime', async ctx => {
+
+  })
+
+app
+  .use(router.routes())
+  .use(router.allowedMethods())
+  
+  .on('error', err => {
+    log.error('server error', err)
+  });
+
+console.log('listening on 3000');
 app.listen(3000);

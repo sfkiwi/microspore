@@ -6,8 +6,8 @@ module.exports = {
     },
     userId: 'varchar',
     created: {
-      type: 'timestamp',
-      default: { '$db_function': 'toTimestamp(now())' }
+      type: 'timeuuid',
+      default: { '$db_function': 'now()' }
     },
     day: 'date'
   },
