@@ -3,10 +3,12 @@ const cassandraUri = process.env.CASSANDRA_URI || '127.0.0.1';
 const cassandraPort = process.env.CASSANDRA_PORT || 9042;
 const fs = require('fs');
 const Progress = require('progress-barzz');
+const path = require('path');
 
 let showProgress = false;
 let numberLines = 0;
 let lineCount = 0;
+
 if (process.argv.length > 3) {
   Progress.init(100);
   numberLines = process.argv[3];
@@ -16,7 +18,7 @@ if (process.argv.length > 3) {
 
 //Tell express-cassandra to use the models-directory, and
 //use bind() to load the models using cassandra configurations.
-models.setDirectory(__dirname + '../models').bind(
+models.setDirectory(path.resolve('../../models')).bind(
   {
     clientOptions: {
       contactPoints: [cassandraUri],
@@ -101,9 +103,11 @@ models.setDirectory(__dirname + '../models').bind(
 
         let eventDoc = {
           day: new models.datatypes.LocalDate(parseInt(obj.year), parseInt(obj.month), parseInt(obj.day)),
+          signup: models.datatypes.LocalDate.fromString(obj.signup),
           created: new models.datatypes.TimeUuid(new Date(obj.created)),
           userId: obj.userId,
         };
+
         var event = new models.instance.PrimeTrialOptout(eventDoc);
         event.save(function (err) {
           if (err) {

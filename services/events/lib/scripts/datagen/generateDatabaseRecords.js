@@ -97,14 +97,16 @@ let writeLine = function() {
       let day = randomDay({ year: year, month: month });
       let orderId = Math.floor(Math.random() * NUM_ORDERS * 1000);
       let userId = users[Math.floor(Math.random() * NUM_USERS)];
+      let amount = Math.floor(Math.random() * 150);
       // let timestamp = randomDatetime({ year: year, month: month.number, day: day });
       //create order
-      orders.end(`{"year":"${year}","month":"${month.number}","day":"${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}","amount":"${Math.floor(Math.random() * 150)}"}]\n`);
+      orders.end(`{"year":"${year}","month":"${month.number}","day":"${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}","amount":"${amount}"}]\n`);
       ordersCount++;
       //create prime sign up for all users
-      prime1.end(`{"year":"${year}","month":"${month.number}","day":"${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}"}]\n`);
+      prime1.end(`{"year":"${year}","month":"${month.number}","day":"${day}","amount":"${amount}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}"}]\n`);
       prime1Count++;
       //create prime opt out for some users
+      let signup = `${year}-${month.number}-${day}`;
       let newday = day + Math.floor(Math.random() * 29);
       
       if (newday <= day) {
@@ -122,7 +124,7 @@ let writeLine = function() {
         year++;
       }
       
-      prime2.end(`{"year":"${year}","month":"${month.number}","day":"${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","userId":"${userId}"}]\n`);
+      prime2.end(`{"year":"${year}","month":"${month.number}","day":"${day}","signup":"${signup}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","userId":"${userId}"}]\n`);
       prime2Count++;
 
       console.log('');
@@ -134,6 +136,7 @@ let writeLine = function() {
       let day = randomDay({ year: year, month: month });
       let orderId = Math.floor(Math.random() * NUM_ORDERS * 1000);
       let userId = users[Math.floor(Math.random() * NUM_USERS)];
+      let amount = Math.floor(Math.random() * 150);
       
       // see if we should continue, or wait
       // don't pass the callback, because we're not done yet.
@@ -142,12 +145,14 @@ let writeLine = function() {
       ordersCount++;
 
       //create prime sign up for all users
-      prime1_Ok = prime1.write(`{"year":"${year}","month":"${month.number}","day":"${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}"},\n`);
+      prime1_Ok = prime1.write(`{"year":"${year}","month":"${month.number}","day":"${day}","amount":"${amount}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","orderId":"${orderId}","userId":"${userId}"},\n`);
+
       prime1Count++;
 
       //create prime opt out for some users
       if (Math.random() < 0.60) {
         
+        let signup = `${year}-${month.number}-${day}`;
         let newday = day + Math.floor(Math.random() * 29);
         
         if (newday <= day) {
@@ -165,7 +170,7 @@ let writeLine = function() {
           year++;
         }
         
-        prime2_Ok = prime2.write(`{"year":"${year}","month":"${month.number}","day":"${day}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","userId":"${userId}"},\n`);
+        prime2_Ok = prime2.write(`{"year":"${year}","month":"${month.number}","day":"${day}","signup":"${signup}","created":"${randomDatetime({ year: year, month: month.number, day: day })}","userId":"${userId}"},\n`);
         prime2Count++;
       }
     }

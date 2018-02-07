@@ -1,6 +1,6 @@
 import Koa from 'koa';
 import Router from 'koa-router';
-import db from './lib/db';
+import db from '../lib/db';
 
 const app = new Koa();
 const router = new Router({

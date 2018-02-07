@@ -9,6 +9,7 @@ module.exports = {
       type: 'varchar',
       default: null
     },
+    cartSize: 'int',
     created: {
       type: 'timeuuid',
       default: { '$db_function': 'now()'}

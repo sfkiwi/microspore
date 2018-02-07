@@ -2,6 +2,7 @@ const models = require('express-cassandra');
 const cassandraUri = process.env.CASSANDRA_URI || '127.0.0.1';
 const cassandraPort = process.env.CASSANDRA_PORT || 9042;
 const fs = require('fs');
+const path = require('path');
 const Progress = require('progress-barzz');
 
 let showProgress = false;
@@ -16,7 +17,7 @@ if (process.argv.length > 3) {
 
 //Tell express-cassandra to use the models-directory, and
 //use bind() to load the models using cassandra configurations.
-models.setDirectory(__dirname + '../models').bind(
+models.setDirectory(path.resolve('../../models')).bind(
   {
     clientOptions: {
       contactPoints: [cassandraUri],
@@ -119,20 +120,6 @@ models.setDirectory(__dirname + '../models').bind(
         });
       }
     };
-
-
-    // exports all table data in current keyspace to the
-    // directory: 'fixtures' inside current script directory
-    // models.import(__dirname + '/fixtures', { batchSize: 100 }, function (err) {
-    //   if (err) {
-    //     console.log(err);
-    //     return;
-    //   }
-    //   console.log('Done');
-    // });
-    // You'll now have a `person` table in cassandra created against the model
-    // schema you've defined earlier and you can now access the model instance
-    // in `models.instance.Person` object containing supported orm operations.
   }
 );
 
