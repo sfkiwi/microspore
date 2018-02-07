@@ -113,6 +113,8 @@ CountersMonth.syncDBAsync().catch(err => console.log(err));
 CountersDay.syncDBAsync().catch(err => console.log(err));
 CountersCohort.syncDBAsync().catch(err => console.log(err));
 
+console.log(`Connected to Cassandra on ${cassandraUri}:${cassandraPort}`);
+
 module.exports = {
   Events: {
     OrdersNewOrder: OrdersNewOrder,
