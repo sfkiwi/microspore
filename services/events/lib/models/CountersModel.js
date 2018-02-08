@@ -47,6 +47,50 @@ module.exports = {
     },
     key: [['category', 'cohort'], 'stage'],
     clustering_order: {'stage': 'DESC'}
+  },
+  histogram: {
+    global: {
+      fields: {
+        category: 'text',
+        bucket: 'int',
+        count: 'counter'
+      },
+      key: ['category', 'bucket'],
+      clustering_order: { 'bucket': 'DESC' }
+    },
+    year: {
+      fields: {
+        category: 'text',
+        year: 'int',
+        bucket: 'int',
+        count: 'counter'
+      },
+      key: [['category', 'year'], 'bucket'],
+      clustering_order: {'bucket': 'DESC'}
+    },
+    month: {
+      fields: {
+        category: 'text',
+        year: 'int',
+        month: 'int',
+        bucket: 'int',
+        count: 'counter'
+      },
+      key: [['category', 'year', 'month'], 'bucket'],
+      clustering_order: { 'bucket': 'DESC' }
+    },
+    day: {
+      fields: {
+        category: 'text',
+        year: 'int',
+        month: 'int',
+        day: 'int',
+        bucket: 'int',
+        count: 'counter'
+      },
+      key: [['category', 'year', 'month', 'day'], 'bucket'],
+      clustering_order: { 'bucket': 'DESC' }
+    }
   }
 };
   

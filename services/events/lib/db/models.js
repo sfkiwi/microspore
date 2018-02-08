@@ -33,6 +33,10 @@ var CountersYear = models.loadSchema('countersyear', CountersModel.year);
 var CountersMonth = models.loadSchema('countersmonth', CountersModel.month);
 var CountersDay = models.loadSchema('countersday', CountersModel.day);
 var CountersCohort = models.loadSchema('counterscohort', CountersModel.cohort);
+var CountersHistogramGlobal = models.loadSchema('countershistogramglobal', CountersModel.histogram.global);
+var CountersHistogramYear = models.loadSchema('countershistogramyear', CountersModel.histogram.year);
+var CountersHistogramMonth = models.loadSchema('countershistogrammonth', CountersModel.histogram.month);
+var CountersHistogramDay = models.loadSchema('countershistogramday', CountersModel.histogram.day);
 
 // sync the schema definition with the cassandra database table
 // if the schema has not changed, the callback will fire immediately
@@ -112,6 +116,10 @@ CountersYear.syncDBAsync().catch(err => console.log(err));
 CountersMonth.syncDBAsync().catch(err => console.log(err));
 CountersDay.syncDBAsync().catch(err => console.log(err));
 CountersCohort.syncDBAsync().catch(err => console.log(err));
+CountersHistogramGlobal.syncDBAsync().catch(err => console.log(err));
+CountersHistogramYear.syncDBAsync().catch(err => console.log(err));
+CountersHistogramMonth.syncDBAsync().catch(err => console.log(err));
+CountersHistogramDay.syncDBAsync().catch(err => console.log(err));
 
 console.log(`Connected to Cassandra on ${cassandraUri}:${cassandraPort}`);
 
@@ -125,7 +133,13 @@ module.exports = {
       Year: CountersYear,
       Month: CountersMonth,
       Day: CountersDay,
-      Cohort: CountersCohort
+      Cohort: CountersCohort,
+      Histogram: {
+        Global: CountersHistogramGlobal,
+        Year: CountersHistogramYear,
+        Month: CountersHistogramMonth,
+        Day: CountersHistogramDay
+      }
     }
   },
   datatypes: models.datatypes, 
