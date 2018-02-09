@@ -89,7 +89,7 @@ let sendMessages = function() {
       signUp: `${year}-${month.number}-${day}`,
       // timestamp: new Date(year, month.number, day + (Math.floor(Math.random() * 30))).getTime()
       // note that Date takes a zero based month number
-      timestamp: new Date(year, month.number - 1, 10).getTime()
+      timestamp: new Date(year, month.number - 1, day + Math.floor(Math.random() * 30)).getTime()
     };
 
     prime.send('trialoptout', optout);
