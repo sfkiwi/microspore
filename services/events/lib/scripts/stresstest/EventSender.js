@@ -8,7 +8,7 @@ const Progress = require('progress-barzz');
 let ordersReady = false;
 let primeReady = false;
 
-const MESSAGE_DELAY = 5;
+const MESSAGE_DELAY = 50; // 250 msg per second
 const NUM_USERS = 100000;
 const NUM_ORDERS = 100000;
 

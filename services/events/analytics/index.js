@@ -4,4 +4,4 @@ require('newrelic');
 require('babel-core/register');
 require('babel-polyfill');
 
-require('./analytics');
+module.exports = require('./analytics');

@@ -12,7 +12,7 @@ let processOrdersNewOrderEvents = (data) => {
     day: LocalDate.fromDate(date),
     created: new TimeUuid(date),
     userId: data.userId.StringValue,
-    orderId: data.userId.StringValue
+    orderId: data.orderId.StringValue
   };
 
   var newOrder = new OrdersNewOrder(newOrderEvent);
@@ -30,7 +30,7 @@ let processOrdersNewOrderEvents = (data) => {
 
   var queries = [];
 
-  Promise.all([
+  return Promise.all([
     // save event
     newOrder.saveAsync(),
   
@@ -48,5 +48,5 @@ let processOrdersNewOrderEvents = (data) => {
 };
 
 module.exports = function (message) {
-  processOrdersNewOrderEvents(message);
+  return processOrdersNewOrderEvents(message);
 };
