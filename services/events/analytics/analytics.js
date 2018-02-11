@@ -3,6 +3,8 @@ import Router from 'koa-router';
 import stats from './routes/stats';
 import logs from './routes/logs';
 
+const port = process.env.PORT || 3000;
+
 const app = new Koa();
 
 const base = new Router();
@@ -29,5 +31,5 @@ app
     console.error('server error', err)
   });
 
-console.log('listening on 3000');
-module.exports = app.listen(3000);
+console.log(`listening on ${port}`);
+module.exports = app.listen(port);
