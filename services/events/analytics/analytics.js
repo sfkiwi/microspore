@@ -10,16 +10,16 @@ const router = new Router({
 });
 
 router
-
+  .get('/', async ctx => {
+    ctx.body = 'Hello World';
+    console.log('Hello World');
+  })
   .use('/stats', stats.routes())
   .use('/logs', logs.routes());
 
 app
   .use(router.routes())
   .use(router.allowedMethods())
-  .get('/', async ctx => {
-    ctx.body = 'Hello World';
-  })
   .on('error', err => {
     console.error('server error', err)
   });
