@@ -11,6 +11,9 @@ config/test.json
 logs
 *.log
 
+# keys
+services/events/config/
+
 # Runtime data
 pids
 *.pid

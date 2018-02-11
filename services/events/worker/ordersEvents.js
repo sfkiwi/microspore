@@ -1,10 +1,13 @@
 const db = require('../lib/db');
 const { OrdersNewOrder, Counters } = db.models.Events;
 const { LocalDate, TimeUuid, Long } = db.models.datatypes;
+var stats = require('../lib/statsD');
 
 let buckets = [0, 10, 50, 100, 500, 1000];
 
 let processOrdersNewOrderEvents = (data) => {
+
+  let processOrderStart = Date.now();
 
   let date = new Date(parseInt(data.timestamp.StringValue));
   let newOrderEvent = {
@@ -30,6 +33,8 @@ let processOrdersNewOrderEvents = (data) => {
 
   var queries = [];
 
+  let saveOrderStart = Date.now();
+
   return Promise.all([
     // save event
     newOrder.saveAsync(),
@@ -44,7 +49,12 @@ let processOrdersNewOrderEvents = (data) => {
     Counters.Histogram.Month.updateAsync({ category: data.type.StringValue, year: date.getFullYear(), month: date.getMonth() + 1, bucket: bucket }, { count: Long.fromInt(1) }),
     Counters.Histogram.Day.updateAsync({ category: data.type.StringValue, year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate(), bucket: bucket }, { count: Long.fromInt(1) })
   ])
+    .then(() => {
+      stats.timing('.backend.worker.timers.saveOrderEvent', Date.now() - saveOrderStart, 'app.', 0.25);
+    })
     .catch(err => console.log(err));
+
+  stats.timing('.backend.worker.timers.processOrderEvent', Date.now() - processOrderStart, 'app.', 0.25);
 };
 
 module.exports = function (message) {

@@ -32,7 +32,8 @@
     "bluebird": "^3.5.1",
     "express-cassandra": "^2.1.1",
     "koa": "^2.4.1",
-    "koa-router": "^7.4.0"
+    "koa-router": "^7.4.0",
+    "node-statsd": "^0.1.1"
   },
   "devDependencies": {
     "babel-polyfill": "^6.26.0",

@@ -2,6 +2,12 @@ const AWS = require('aws-sdk');
 const Promise = require('bluebird');
 AWS.config.update({ region: 'us-east-2' });
 var sqs = new AWS.SQS({ apiVersion: '2012-11-05' });
+var stats = require('../../lib/statsD'); 
+
+// stats
+var pollingStart = 0;
+var processBatchStart = 0;
+var deleteMessagesStart = 0;
 
 sqs.getQueueUrlAsync = Promise.promisify(sqs.getQueueUrl);
 sqs.receiveMessageAsync = Promise.promisify(sqs.receiveMessage);
@@ -12,9 +18,7 @@ var params = {
   QueueName: 'events'
 };
 
-
 var EventQueue = function () {
-
 
   this.handlers = {};
   this.queueUrl = null;
@@ -41,6 +45,8 @@ var EventQueue = function () {
 
 EventQueue.prototype.pollMessages = function () {
 
+  pollingStart = Date.now();
+    
   params = {
     AttributeNames: [
       'SentTimestamp'
@@ -59,6 +65,9 @@ EventQueue.prototype.pollMessages = function () {
     .then((data) => {
 
       if (data.Messages) {
+
+        processBatchStart = Date.now();
+        stats.increment('.backend.worker.counters.messages', data.Messages.Length, 0.25);  
 
         let done = [];
 
@@ -82,6 +91,9 @@ EventQueue.prototype.pollMessages = function () {
           QueueUrl: this.queueUrl /* required */
         };
 
+        stats.timing('.backend.worker.timers.processBatch', Date.now() - processBatchStart, 0.25);
+        deleteMessagesStart = Date.now();  
+
         return sqs.deleteMessageBatchAsync(params);
       }
     })
@@ -89,6 +101,8 @@ EventQueue.prototype.pollMessages = function () {
     .then((data) => {
 
       // reset long polling
+      stats.timing('.backend.worker.timers.polling', Date.now() - pollingStart, 0.25);  
+      stats.timing('.backend.worker.timers.deleteMessages', Date.now() - deleteMessagesStart, 0.25);  
       this.pollMessages();
     })
 
