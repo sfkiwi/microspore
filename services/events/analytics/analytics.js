@@ -11,7 +11,7 @@ const router = new Router({
 
 router
   .get('/', async ctx => {
-    ctx.body = 'Hello World';
+    ctx.body = {hello: 'World'};
     console.log('Hello World');
   })
   .use('/stats', stats.routes())
