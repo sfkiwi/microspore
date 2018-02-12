@@ -48,7 +48,7 @@ queue.on('data', (msg) => {
   }
 
   if (eventMessageHandlers[msg.service.StringValue]) {
-    eventMessageHandlers[msg.service.StringValue](msg);
+    return eventMessageHandlers[msg.service.StringValue](msg);
   }
 });
 

@@ -7,6 +7,8 @@ var stats = require('../../lib/statsD');
 // stats
 var pollingStart = 0;
 var processBatchStart = 0;
+var processBatchTimer = 0;
+var saveMessagesStart = 0;
 var deleteMessagesStart = 0;
 
 sqs.getQueueUrlAsync = Promise.promisify(sqs.getQueueUrl);
@@ -43,7 +45,7 @@ var EventQueue = function () {
     });
 };
 
-EventQueue.prototype.pollMessages = function () {
+EventQueue.prototype.pollMessages = async function () {
 
   pollingStart = Date.now();
     
@@ -60,60 +62,70 @@ EventQueue.prototype.pollMessages = function () {
     WaitTimeSeconds: 20
   };
 
-  sqs.receiveMessageAsync(params)
+  try {
 
-    .then((data) => {
+    let data = await sqs.receiveMessageAsync(params)
+    
+    if (data.Messages) {
 
-      if (data.Messages) {
+      stats.timing('.backend.worker.timers.waiting', Date.now() - pollingStart);  
+      stats.increment('.backend.worker.counters.messages', data.Messages.Length);  
 
-        processBatchStart = Date.now();
-        stats.increment('.backend.worker.counters.messages', data.Messages.Length, 0.25);  
+      processBatchStart = Date.now();
+    
+      let done = [];
+    
+      // loop through all messages received
+      // console.log('1', Date.now());
+      let tasks = data.Messages.map((msg, index) => {
+        // check if message has already been received
+        if (!this.duplicates[msg.MessageId]) {
+          this.duplicates[msg.MessageId] = true;
 
-        let done = [];
-
-        // loop through all messages received
-        data.Messages.forEach((msg, index) => {
-
-          // check if message has already been received
-          if (!this.duplicates[msg.MessageId]) {
-            this.duplicates[msg.MessageId] = true;
-
-            // call subscriber callback with the message data
-            this.handlers['data'].forEach(handler => handler(msg.MessageAttributes));
-          }
-          
           // add processed messages to list for deletion from queue
           done.push({ Id: `${index}`, ReceiptHandle: msg.ReceiptHandle });
-        });
+  
+          // call subscriber callback with the message data
+          return Promise.all(
+            this.handlers['data'].map(handler => handler(msg.MessageAttributes))
+          );
+        }
+      });
+      
+      stats.timing('.backend.worker.timers.processBatch', Date.now() - processBatchStart);
+      saveMessagesStart = Date.now();
 
-        var params = {
-          Entries: done,
-          QueueUrl: this.queueUrl /* required */
-        };
+      await Promise.all(tasks);
 
-        stats.timing('.backend.worker.timers.processBatch', Date.now() - processBatchStart, 0.25);
-        deleteMessagesStart = Date.now();  
+      stats.timing('.backend.worker.timers.saveMessages', Date.now() - saveMessagesStart);
+        
+      var params = {
+        Entries: done,
+        QueueUrl: this.queueUrl /* required */
+      };
 
-        return sqs.deleteMessageBatchAsync(params);
-      }
-    })
 
-    .then((data) => {
-
+      deleteMessagesStart = Date.now();  
+    
+      await sqs.deleteMessageBatchAsync(params);
+     
       // reset long polling
-      stats.timing('.backend.worker.timers.polling', Date.now() - pollingStart, 0.25);  
-      stats.timing('.backend.worker.timers.deleteMessages', Date.now() - deleteMessagesStart, 0.25);  
-      this.pollMessages();
-    })
+      stats.timing('.backend.worker.timers.deleteMessages', Date.now() - deleteMessagesStart);  
 
-    .catch((err) => {
-      console.log(err);
-    });
+      this.pollMessages();
+    } else {
+
+      this.pollMessages();
+    }
+    
+  } catch(err) {
+    console.log(err);
+  }
 };
 
 EventQueue.prototype.on = function (event, callback) {
 
-  if (event ===  'connect') {
+  if (event === 'connect') {
 
     if (this.queueUrl) {
       callback();

@@ -29,7 +29,7 @@ let processPrimeTrialSignupEvents = (data) => {
 
   var queries = [];
 
-  Promise.all([
+  return Promise.all([
     // save event
     trialSignup.saveAsync(),
     
@@ -62,7 +62,7 @@ let processPrimeTrialOptoutEvents = (data) => {
 
   var queries = [];
 
-  Promise.all([
+  return Promise.all([
     // save event
     trialOptout.saveAsync(),
     // update Counters
