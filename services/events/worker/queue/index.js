@@ -48,6 +48,8 @@ var EventQueue = function () {
 EventQueue.prototype.pollMessages = async function () {
 
   pollingStart = Date.now();
+  console.log('waiting', Date.now());
+
     
   params = {
     AttributeNames: [
@@ -70,8 +72,9 @@ EventQueue.prototype.pollMessages = async function () {
 
       stats.timing('.backend.worker.timers.waiting', Date.now() - pollingStart);  
       stats.increment('.backend.worker.counters.messages', data.Messages.Length);  
-
+      
       processBatchStart = Date.now();
+      console.log('Process Batch', Date.now());
     
       let done = [];
     
@@ -92,11 +95,13 @@ EventQueue.prototype.pollMessages = async function () {
         }
       });
       
+      console.log('save', Date.now());
       stats.timing('.backend.worker.timers.processBatch', Date.now() - processBatchStart);
       saveMessagesStart = Date.now();
 
       await Promise.all(tasks);
 
+      console.log('delete', Date.now());
       stats.timing('.backend.worker.timers.saveMessages', Date.now() - saveMessagesStart);
         
       var params = {
@@ -110,6 +115,7 @@ EventQueue.prototype.pollMessages = async function () {
       await sqs.deleteMessageBatchAsync(params);
      
       // reset long polling
+      console.log('finished', Date.now());
       stats.timing('.backend.worker.timers.deleteMessages', Date.now() - deleteMessagesStart);  
 
       this.pollMessages();
