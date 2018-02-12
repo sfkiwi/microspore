@@ -71,19 +71,21 @@ EventQueue.prototype.pollMessages = async function () {
     if (data.Messages) {
 
       stats.timing('.backend.worker.timers.waiting', Date.now() - pollingStart);  
-      stats.increment('.backend.worker.counters.messages', data.Messages.Length);  
       
       processBatchStart = Date.now();
       // console.log('Process Batch', Date.now());
-    
+      
       let done = [];
-    
+      
       // loop through all messages received
       // console.log('1', Date.now());
       let tasks = data.Messages.map((msg, index) => {
+        stats.increment('.backend.worker.counters.messages');  
         // check if message has already been received
         if (!this.duplicates[msg.MessageId]) {
           this.duplicates[msg.MessageId] = true;
+
+          if (this.duplicates.length > 1000)
 
           // add processed messages to list for deletion from queue
           done.push({ Id: `${index}`, ReceiptHandle: msg.ReceiptHandle });
