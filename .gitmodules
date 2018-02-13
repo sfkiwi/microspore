@@ -1,0 +1,6 @@
+[submodule "services/events/events-worker"]
+	path = services/events/events-worker
+	url = https://github.com/microspore/events-worker
+[submodule "services/events/events-analytics"]
+	path = services/events/events-analytics
+	url = https://github.com/microspore/events-analytics
