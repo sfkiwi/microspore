@@ -1,0 +1,128 @@
+version: "3"
+services:
+  cassandra1:
+    image: cassandra:latest
+    # expose:
+    #   # Intra-node communication
+    #   - "7000"
+    #   # TLS Intra-node communication
+    #   - "7001"
+    #   # JMX
+    #   - "7199"
+    #   # CQL
+    #   - "9042"
+    #   # Thrift Service
+    #   - "9160"
+    ports:
+      - "9160:9160"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=events_cluster
+      - CASSANDRA_BROADCAST_ADDRESS=cassandra1
+    volumes:
+      - "/home/docker/data:/var/lib/cassandra:rw"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - webnet
+  cassandra2:
+    image: cassandra:latest
+    # expose:
+    #   # Intra-node communication
+    #   - "7000"
+    #   # TLS Intra-node communication
+    #   - "7001"
+    #   # JMX
+    #   - "7199"
+    #   # CQL
+    #   - "9042"
+    #   # Thrift Service
+    #   - "9160"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=events_cluster
+      - CASSANDRA_SEEDS=cassandra1
+      - CASSANDRA_BROADCAST_ADDRESS=cassandra2
+    volumes:
+      - "/home/docker/data:/var/lib/cassandra:rw"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    depends_on:
+      - cassandra1
+    networks:
+      - webnet
+  cassandra3:
+    image: cassandra:latest
+    # expose:
+    #   # Intra-node communication
+    #   - "7000"
+    #   # TLS Intra-node communication
+    #   - "7001"
+    #   # JMX
+    #   - "7199"
+    #   # CQL
+    #   - "9042"
+    #   # Thrift Service
+    #   - "9160"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=events_cluster
+      - CASSANDRA_SEEDS=cassandra1
+      - CASSANDRA_BROADCAST_ADDRESS=cassandra3
+    volumes:
+      - "/home/docker/data:/var/lib/cassandra:rw"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    depends_on:
+      - cassandra1
+    networks:
+      - webnet
+  worker:
+    # replace username/repo:tag with your name and image details
+    image: sfkiwi/events-worker:latest
+    deploy:
+      replicas: 12
+      placement:
+        constraints: [node.role == worker]
+      restart_policy:
+        condition: on-failure
+    depends_on: 
+      - cassandra1
+    environment:
+      - CASSANDRA_URI=cassandra1
+      - NEWRELIC_KEY=ee692bf0c7e064e9f1cd4a207ff5e7431206b6cb
+      - AWS_ACCESS_KEY_ID=AKIAIAKIEPXTTVTXT4LQ
+      - AWS_SECRET_ACCESS_KEY=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
+    networks:
+      - webnet
+  analytics:
+    image: sfkiwi/events-analytics:latest
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.role == worker]
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "80:80"
+      - "3000:3000"
+    depends_on: 
+      - cassandra1
+    environment:
+      - CASSANDRA_URI=cassandra1
+      - NEWRELIC_KEY=ee692bf0c7e064e9f1cd4a207ff5e7431206b6cb
+    networks:
+      - webnet
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - webnet
+networks:
+  webnet:
